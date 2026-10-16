@@ -50,6 +50,7 @@ static const auto g_ConfigInitialLeftPath = "filePanel.general.initialLeftPanelP
 static const auto g_ConfigInitialRightPath = "filePanel.general.initialRightPanelPath";
 static const auto g_ConfigGeneralShowTabs = "general.showTabs";
 static const auto g_ConfigRouteKeyboardInputIntoTerminal = "filePanel.general.routeKeyboardInputIntoTerminal";
+static const auto g_ConfigTopBottomPanelsLayout = "filePanel.general.topBottomPanelsLayout";
 static const auto g_ResorationPanelsKey = "panels_v1";
 static const auto g_ResorationUIKey = "uiState";
 static const auto g_ResorationUISelectedLeftTab = "selectedLeftTab";
@@ -153,6 +154,8 @@ static NSString *TitleForData(const data::Model *_data);
 {
     m_ConfigTickets.emplace_back(
         GlobalConfig().Observe(g_ConfigGeneralShowTabs, nc::objc_callback(self, @selector(onShowTabsSettingChanged))));
+    m_ConfigTickets.emplace_back(GlobalConfig().Observe(
+        g_ConfigTopBottomPanelsLayout, nc::objc_callback(self, @selector(onTopBottomPanelsLayoutSettingChanged))));
     m_ThemesObservationTicket = NCAppDelegate.me.themesManager.ObserveChanges(
         nc::ThemesManager::Notifications::FilePanelsGeneral, nc::objc_callback(self, @selector(onThemeChanged)));
 }
@@ -267,6 +270,7 @@ static NSString *TitleForData(const data::Model *_data);
 {
     m_SplitView = [[FilePanelMainSplitView alloc] initWithFrame:NSRect()
                                         actionsShortcutsManager:NCAppDelegate.me.actionsShortcutsManager];
+    m_SplitView.topBottomPanelsLayout = GlobalConfig().GetBool(g_ConfigTopBottomPanelsLayout);
     m_SplitView.translatesAutoresizingMaskIntoConstraints = NO;
     [m_SplitView.leftTabbedHolder addPanel:m_LeftPanelControllers.front().view];
     [m_SplitView.rightTabbedHolder addPanel:m_RightPanelControllers.front().view];
@@ -894,6 +898,20 @@ static void AskAboutStoppingRunningOperations(NSWindow *_window, std::function<v
             m_ShowTabs = show;
             [self updateTabBarsVisibility];
         });
+}
+
+- (void)onTopBottomPanelsLayoutSettingChanged
+{
+    // This callback may fire on a background thread and consecutive changes may arrive within the
+    // delay, so read the config and compare at execution time, on the main queue.
+    __weak MainWindowFilePanelState *weak_self = self;
+    dispatch_to_main_queue_after(1ms, [weak_self] {
+        if( MainWindowFilePanelState *const strong_self = weak_self ) {
+            const bool stacked = GlobalConfig().GetBool(g_ConfigTopBottomPanelsLayout);
+            if( stacked != strong_self->m_SplitView.topBottomPanelsLayout )
+                strong_self->m_SplitView.topBottomPanelsLayout = stacked;
+        }
+    });
 }
 
 - (void)onThemeChanged

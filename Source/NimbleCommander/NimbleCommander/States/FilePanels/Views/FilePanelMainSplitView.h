@@ -30,6 +30,10 @@ class ActionsShortcutsManager;
 @property(nonatomic, readonly) bool isRightOverlayed;
 
 @property(nonatomic, readonly) bool anyCollapsedOrOverlayed;
+
+// If true, the two panels are stacked one above the other (top/bottom);
+// if false (the default), they are placed side by side (left/right).
+@property(nonatomic) bool topBottomPanelsLayout;
 - (bool)isViewCollapsedOrOverlayed:(NSView *)_v;
 
 @property(nonatomic) NSView *leftOverlay;

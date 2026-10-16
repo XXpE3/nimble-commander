@@ -218,6 +218,10 @@ static void Perform(SEL _sel, const StateActionsMap &_map, MainWindowFilePanelSt
 {
     PERFORM;
 }
+- (IBAction)onSwitchPanelsOrientation:(id)sender
+{
+    PERFORM;
+}
 - (IBAction)onLeftPanelGoToButtonAction:(id)sender
 {
     PERFORM;
