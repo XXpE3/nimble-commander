@@ -12,7 +12,7 @@
 	<string>1.0</string>
 	<key>SMAuthorizedClients</key>
 	<array>
-		<string>identifier info.filesmanager.Files and certificate leaf[subject.CN] = "Developer ID Application: Mikhail Kazakov (AC5SJT236H)"</string>
+		<string>identifier info.filesmanager.Files and certificate leaf[subject.CN] = "Developer ID Application: NC Local (NCLOCAL0001)"</string>
 	</array>
 </dict>
 </plist>

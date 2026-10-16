@@ -15,7 +15,7 @@
 // requires that identifier is right and binary is signed by me
 static const char *g_SignatureRequirement =
     "identifier info.filesmanager.Files and "
-    "certificate leaf[subject.CN] = \"Developer ID Application: Mikhail Kazakov (AC5SJT236H)\"";
+    "certificate leaf[subject.CN] = \"Developer ID Application: NC Local (NCLOCAL0001)\"";
 
 static const char *g_ServiceName = "info.filesmanager.Files.PrivilegedIOHelperV2";
 
