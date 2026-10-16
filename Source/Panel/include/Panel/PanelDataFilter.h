@@ -55,4 +55,14 @@ struct HardFilter {
 
 std::optional<QuickSearchHighlight> FuzzySearch(NSString *_filename, NSString *_text) noexcept;
 
+// Matches an ASCII alphanumeric query (with at least one letter) against the Hanyu Pinyin
+// transliteration of the Han characters of the filename, searching either the full syllables,
+// e.g. "keji" for 科技, or the syllable initials, e.g. "kj". Non-Han parts of the filename are
+// carried over verbatim and remain matchable. Returns no value when the query is not eligible,
+// when the filename has no Han characters, or when there is no match.
+std::optional<QuickSearchHighlight> PinyinSearch(NSString *_filename,
+                                                 NSString *_text,
+                                                 TextualFilter::Where _type,
+                                                 bool _has_extension) noexcept;
+
 } // namespace nc::panel::data

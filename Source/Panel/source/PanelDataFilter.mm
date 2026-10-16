@@ -133,6 +133,84 @@ std::optional<QuickSearchHighlight> FuzzySearch(NSString *_filename, NSString *_
     return QuickSearchHighlight({found.data(), found.size()}); // might discard some results here
 }
 
+// Performs the literal matching of the previous implementation, unchanged.
+static std::optional<QuickSearchHighlight> LiteralSearch(NSString *_name,
+                                                         NSString *_text,
+                                                         TextualFilter::Where _type,
+                                                         bool _has_extension) noexcept
+{
+    const auto textlen = _text.length;
+    const auto namelen = _name.length;
+    if( textlen > namelen )
+        return {}; // unsatisfiable by definition
+
+    if( _type == TextualFilter::Anywhere ) {
+        const NSRange result = [_name rangeOfString:_text options:NSCaseInsensitiveSearch];
+        if( result.length == 0 )
+            return {};
+
+        QuickSearchHighlight::Range hlrange;
+        hlrange.offset = result.location;
+        hlrange.length = result.length;
+        return QuickSearchHighlight({&hlrange, 1});
+    }
+    else if( _type == TextualFilter::Beginning ) {
+        const NSRange result = [_name rangeOfString:_text options:NSCaseInsensitiveSearch | NSAnchoredSearch];
+
+        if( result.length == 0 )
+            return {};
+
+        QuickSearchHighlight::Range hlrange;
+        hlrange.offset = result.location;
+        hlrange.length = result.length;
+        return QuickSearchHighlight({&hlrange, 1});
+    }
+    else if( _type == TextualFilter::Ending || _type == TextualFilter::BeginningOrEnding ) {
+        if( _type == TextualFilter::BeginningOrEnding ) { // look at beginning
+            const NSRange result = [_name rangeOfString:_text options:NSCaseInsensitiveSearch | NSAnchoredSearch];
+            if( result.length != 0 ) {
+                QuickSearchHighlight::Range hlrange;
+                hlrange.offset = result.location;
+                hlrange.length = result.length;
+                return QuickSearchHighlight({&hlrange, 1});
+            }
+        }
+
+        if( _has_extension ) {
+            // slow path here - look before extension
+            const NSRange dotrange = [_name rangeOfString:@"." options:NSBackwardsSearch];
+            if( dotrange.length != 0 && dotrange.location > textlen ) {
+                const NSRange result = [_name rangeOfString:_text
+                                                    options:NSCaseInsensitiveSearch | NSAnchoredSearch | NSBackwardsSearch
+                                                      range:NSMakeRange(dotrange.location - textlen, textlen)];
+                if( result.length != 0 ) {
+                    QuickSearchHighlight::Range hlrange;
+                    hlrange.offset = result.location;
+                    hlrange.length = result.length;
+                    return QuickSearchHighlight({&hlrange, 1});
+                }
+            }
+        }
+
+        // look at the end at last
+        const NSRange result = [_name rangeOfString:_text
+                                           options:NSCaseInsensitiveSearch | NSAnchoredSearch | NSBackwardsSearch];
+        if( result.length != 0 ) {
+            QuickSearchHighlight::Range hlrange;
+            hlrange.offset = result.location;
+            hlrange.length = result.length;
+            return QuickSearchHighlight({&hlrange, 1});
+        }
+        else {
+            return {};
+        }
+    }
+    else if( _type == TextualFilter::Fuzzy ) {
+        return FuzzySearch(_name, _text);
+    }
+    return {};
+}
+
 bool TextualFilter::IsValidItem(const VFSListingItem &_item, QuickSearchHighlight &_found_range) const
 {
     _found_range = {};
@@ -148,85 +226,19 @@ bool TextualFilter::IsValidItem(const VFSListingItem &_item, QuickSearchHighligh
         return true; // will return true on any item with @"" filter
 
     NSString *const name = _item.DisplayNameNS();
-    const auto namelen = name.length;
-    if( textlen > namelen )
-        return false; // unsatisfiable by definition
 
-    if( type == Anywhere ) {
-        const NSRange result = [name rangeOfString:text options:NSCaseInsensitiveSearch];
-        if( result.length == 0 )
-            return false;
-
-        QuickSearchHighlight::Range hlrange;
-        hlrange.offset = result.location;
-        hlrange.length = result.length;
-        _found_range = QuickSearchHighlight({&hlrange, 1});
+    if( auto found_range = LiteralSearch(name, text, type, _item.HasExtension()) ) {
+        _found_range = *found_range;
         return true;
     }
-    else if( type == Beginning ) {
-        const NSRange result = [name rangeOfString:text options:NSCaseInsensitiveSearch | NSAnchoredSearch];
 
-        if( result.length == 0 )
-            return false;
-
-        QuickSearchHighlight::Range hlrange;
-        hlrange.offset = result.location;
-        hlrange.length = result.length;
-        _found_range = QuickSearchHighlight({&hlrange, 1});
+    // no literal match - try matching the pinyin transliteration of the Han characters,
+    // which can be longer than the filename itself, e.g. "kejineirong" vs 科技内容.pdf
+    if( auto found_range = PinyinSearch(name, text, type, _item.HasExtension()) ) {
+        _found_range = *found_range;
         return true;
     }
-    else if( type == Ending || type == BeginningOrEnding ) {
-        if( type == BeginningOrEnding ) { // look at beginning
-            const NSRange result = [name rangeOfString:text options:NSCaseInsensitiveSearch | NSAnchoredSearch];
-            if( result.length != 0 ) {
-                QuickSearchHighlight::Range hlrange;
-                hlrange.offset = result.location;
-                hlrange.length = result.length;
-                _found_range = QuickSearchHighlight({&hlrange, 1});
-                return true;
-            }
-        }
 
-        if( _item.HasExtension() ) {
-            // slow path here - look before extension
-            const NSRange dotrange = [name rangeOfString:@"." options:NSBackwardsSearch];
-            if( dotrange.length != 0 && dotrange.location > textlen ) {
-                const NSRange result =
-                    [name rangeOfString:text
-                                options:NSCaseInsensitiveSearch | NSAnchoredSearch | NSBackwardsSearch
-                                  range:NSMakeRange(dotrange.location - textlen, textlen)];
-                if( result.length != 0 ) {
-                    QuickSearchHighlight::Range hlrange;
-                    hlrange.offset = result.location;
-                    hlrange.length = result.length;
-                    _found_range = QuickSearchHighlight({&hlrange, 1});
-                    return true;
-                }
-            }
-        }
-
-        // look at the end at last
-        const NSRange result = [name rangeOfString:text
-                                           options:NSCaseInsensitiveSearch | NSAnchoredSearch | NSBackwardsSearch];
-        if( result.length != 0 ) {
-            QuickSearchHighlight::Range hlrange;
-            hlrange.offset = result.location;
-            hlrange.length = result.length;
-            _found_range = QuickSearchHighlight({&hlrange, 1});
-            return true;
-        }
-        else
-            return false;
-    }
-    else if( type == Fuzzy ) {
-        if( auto res = FuzzySearch(name, text) ) {
-            _found_range = *res;
-            return true;
-        }
-        else {
-            return false;
-        }
-    }
     return false;
 }
 

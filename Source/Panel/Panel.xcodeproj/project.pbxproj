@@ -92,6 +92,7 @@
 		CF0B0407281F016300076FDF /* SelectionWithMaskPopupViewController.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = SelectionWithMaskPopupViewController.mm; path = source/UI/SelectionWithMaskPopupViewController.mm; sourceTree = "<group>"; };
 		CF0B0409281F027900076FDF /* Internal.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = Internal.mm; path = source/Internal.mm; sourceTree = "<group>"; };
 		CF0B040D281F029A00076FDF /* Internal.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = Internal.h; path = include/Panel/Internal.h; sourceTree = "<group>"; };
+		CF10C0DE2F65000100A1B2C3 /* PinyinSearch.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = PinyinSearch.mm; path = source/PinyinSearch.mm; sourceTree = "<group>"; };
 		CF13B5F92C8C598D004C1879 /* PanelPT */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = PanelPT; sourceTree = BUILT_PRODUCTS_DIR; };
 		CF13B6042C8C682D004C1879 /* Comparator_PT.cpp */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.cpp; name = Comparator_PT.cpp; path = tests/Comparator_PT.cpp; sourceTree = "<group>"; };
 		CF13B60A2C8C6FE7004C1879 /* PanelDataEntriesComparator.mm */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.cpp.objcpp; name = PanelDataEntriesComparator.mm; path = source/PanelDataEntriesComparator.mm; sourceTree = "<group>"; };
@@ -328,6 +329,7 @@
 				CFF33F9F2556948900B3C92C /* PanelDataSortMode.cpp */,
 				CFF33FA5255694E300B3C92C /* PanelDataStatistics.cpp */,
 				CF46525C2699F9830085840A /* PanelViewFieldEditor.mm */,
+				CF10C0DE2F65000100A1B2C3 /* PinyinSearch.mm */,
 				CF3ED50025860D5E00D67AF2 /* QuickSearch.mm */,
 				CFCF43E32B8B644B00B513C7 /* TagsStorage.cpp */,
 				CFA89DA12814794000BEA127 /* TextWidthsCache.mm */,
@@ -500,6 +502,7 @@
 				en,
 				Base,
 				ru,
+				zh-Hans,
 			);
 			mainGroup = CFF33F562556924900B3C92C;
 			productRefGroup = CFF33F602556924900B3C92C /* Products */;

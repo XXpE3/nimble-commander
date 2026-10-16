@@ -10,6 +10,12 @@
             "state" : "new",
             "value" : "Nimble Commander"
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nimble Commander"
+          }
         }
       }
     },
@@ -21,6 +27,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "An application in Nimble Commander wants to use AppleScript."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Nimble Commander 中的一个应用想要使用 AppleScript。"
           }
         }
       }
@@ -34,6 +46,12 @@
             "state" : "new",
             "value" : "The access is needed in order to allow you to browse and manage the items in this folder with Nimble Commander. This application will not use any of your personal data without your actions."
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要此访问权限才能让您使用 Nimble Commander 浏览和管理此文件夹中的项目。未经您的操作，此应用不会使用您的任何个人数据。"
+          }
         }
       }
     },
@@ -45,6 +63,12 @@
           "stringUnit" : {
             "state" : "new",
             "value" : "The access is needed in order to allow you to browse and manage the items in this folder with Nimble Commander. This application will not use any of your personal data without your actions."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要此访问权限才能让您使用 Nimble Commander 浏览和管理此文件夹中的项目。未经您的操作，此应用不会使用您的任何个人数据。"
           }
         }
       }
@@ -58,6 +82,12 @@
             "state" : "new",
             "value" : "The access is needed in order to allow you to browse and manage the items in this folder with Nimble Commander. This application will not use any of your personal data without your actions."
           }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "需要此访问权限才能让您使用 Nimble Commander 浏览和管理此文件夹中的项目。未经您的操作，此应用不会使用您的任何个人数据。"
+          }
         }
       }
     },
@@ -68,6 +98,12 @@
         "en" : {
           "stringUnit" : {
             "state" : "new",
+            "value" : "Copyright © 2013-2026 Michael Kazakov.\nAll rights reserved."
+          }
+        },
+        "zh-Hans" : {
+          "stringUnit" : {
+            "state" : "translated",
             "value" : "Copyright © 2013-2026 Michael Kazakov.\nAll rights reserved."
           }
         }
