@@ -2929,6 +2929,24 @@
         }
       }
     },
+    "sTk-pN-0vL.title" : {
+      "comment" : "Class = \"NSMenuItem\"; title = \"Switch Panels Orientation\"; ObjectID = \"sTk-pN-0vL\";",
+      "extractionState" : "extracted_with_value",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "new",
+            "value" : "Switch Panels Orientation"
+          }
+        },
+        "ru" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Переключить ориентацию панелей"
+          }
+        }
+      }
+    },
     "SXp-Fg-ClM.title" : {
       "comment" : "Class = \"NSMenuItem\"; title = \"Select by Extension\"; ObjectID = \"SXp-Fg-ClM\";",
       "extractionState" : "extracted_with_value",

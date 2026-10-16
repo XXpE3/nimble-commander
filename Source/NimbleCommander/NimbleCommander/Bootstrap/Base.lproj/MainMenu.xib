@@ -299,6 +299,12 @@ DQ
                                     <action selector="onSwitchDualSinglePaneMode:" target="-1" id="91Y-wg-brq"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Switch Panels Orientation" tag="13261" id="sTk-pN-0vL">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="onSwitchPanelsOrientation:" target="-1" id="t9G-sP-4kQ"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Swap Panels" tag="13020" keyEquivalent="u" id="782">
                                 <connections>
                                     <action selector="OnSwapPanels:" target="-1" id="784"/>

@@ -138,6 +138,11 @@
             "maxFPS": 60,
   
             "bottomGapForOverlappedTerminal": 0,
+            /**
+             * Lay out the two file panels one above the other (top/bottom) instead of
+             * the default side-by-side (left/right) arrangement
+             */
+            "topBottomPanelsLayout": false,
             
             /**
              * Separator between filenames/filepaths for copying in pasteboard.

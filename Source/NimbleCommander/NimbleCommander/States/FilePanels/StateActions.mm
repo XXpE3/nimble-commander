@@ -3,6 +3,7 @@
 #include "Actions/TabsManagement.h"
 #include "Actions/ShowGoToPopup.h"
 #include "Actions/ToggleSingleOrDualMode.h"
+#include "Actions/TogglePanelsOrientation.h"
 #include "Actions/ShowTabs.h"
 #include "Actions/CopyFile.h"
 #include "Actions/RevealInOppositePanel.h"
@@ -34,6 +35,7 @@ StateActionsMap BuildStateActionsMap(nc::config::Config &_global_config,
     add(@selector(onLeftPanelGoToButtonAction:), new ShowLeftGoToPopup{_net_mgr, _native_fs_manager, _tags_storage});
     add(@selector(onRightPanelGoToButtonAction:), new ShowRightGoToPopup{_net_mgr, _native_fs_manager, _tags_storage});
     add(@selector(onSwitchDualSinglePaneMode:), new ToggleSingleOrDualMode);
+    add(@selector(onSwitchPanelsOrientation:), new TogglePanelsOrientation);
     add(@selector(OnWindowShowPreviousTab:), new ShowPreviousTab);
     add(@selector(OnWindowShowNextTab:), new ShowNextTab);
     add(@selector(OnShowTabs:), new ShowTabs);

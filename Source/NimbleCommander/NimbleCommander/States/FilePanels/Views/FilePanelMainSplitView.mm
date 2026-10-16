@@ -11,7 +11,7 @@
 #include <cmath>
 
 static constexpr double g_MidGuideGap = 24.;
-static constexpr double g_MinPanelWidth = 120.;
+static constexpr double g_MinPanelExtent = 120.;
 static constexpr double g_ResizingGran = 14.;
 static constexpr double g_DividerThickness = 1.;
 
@@ -20,7 +20,7 @@ static constexpr double g_DividerThickness = 1.;
     // if any part becomes overlayed - basic view is backed up in this array
     FilePanelsTabbedHolder *m_BasicViews[2];
     nc::ThemesManager::ObservationTicket m_ThemeChangesObservation;
-    double m_PreCollapseProp; // full width minus divider divided by left width
+    double m_PreCollapseProp; // full split-axis extent minus divider divided by the first panel extent
     const nc::utility::ActionsShortcutsManager *m_ActionsShortcutsManager;
 }
 
@@ -51,6 +51,31 @@ static constexpr double g_DividerThickness = 1.;
     return self;
 }
 
+- (bool)topBottomPanelsLayout
+{
+    return !self.vertical; // NSSplitView.vertical == YES means a vertical divider, i.e. side-by-side panes
+}
+
+- (void)setTopBottomPanelsLayout:(bool)_stacked
+{
+    if( self.vertical == !_stacked )
+        return;
+    const double prop = m_PreCollapseProp; // capture BEFORE any relayout: adjustSubviews fires
+                                           // splitViewDidResizeSubviews which rewrites it on the new axis
+    self.vertical = !_stacked;
+    if( self.anyCollapsed )
+        // The captured proportion describes the old split axis and a possibly different extent,
+        // so it's meaningless after the flip - fall back to an even split on the next expansion.
+        m_PreCollapseProp = 2.;
+    [self adjustSubviews]; // arrange subviews along the new axis; collapsed subviews stay collapsed and the visible one fills the view
+    if( !self.anyCollapsed && self.subviews.count == 2 && !NSIsEmptyRect(self.frame) ) {
+        const double full = _stacked ? self.frame.size.height : self.frame.size.width;
+        if( full > g_DividerThickness )
+            [self setPosition:std::round((full - g_DividerThickness) / prop) ofDividerAtIndex:0];
+    }
+    [self display];
+}
+
 - (CGFloat)dividerThickness
 {
     return g_DividerThickness;
@@ -68,7 +93,7 @@ static constexpr double g_DividerThickness = 1.;
     if( _divider_index != 0 )
         return _proposed_position;
 
-    auto mid = std::floor(self.frame.size.width / 2.);
+    auto mid = std::floor((self.vertical ? self.frame.size.width : self.frame.size.height) / 2.);
     if( _proposed_position > mid - g_MidGuideGap && _proposed_position < mid + g_MidGuideGap )
         return mid;
 
@@ -97,27 +122,24 @@ static constexpr double g_DividerThickness = 1.;
         return;
 
     if( NSView *left = [subviews objectAtIndex:0] ) {
-        const NSRect left_frame = left.frame;
-        const double rounded_width = std::round(left_frame.size.width);
-        if( std::abs(left_frame.size.width - rounded_width) > 0.05 ) {
-            // The subviews have fractional widths, re-position them to get rid of this.
+        NSRect left_frame = left.frame;
+        CGFloat &left_extent = self.vertical ? left_frame.size.width : left_frame.size.height;
+        const double rounded_extent = std::round(left_extent);
+        if( std::abs(left_extent - rounded_extent) > 0.05 ) {
+            // The subviews have fractional extents, re-position them to get rid of this.
             // Find the fractional part and redistribute it amoung the two views.
-            const double fraction = left_frame.size.width - rounded_width;
-
-            const NSRect new_left_rect = NSMakeRect(left_frame.origin.x, //
-                                                    left_frame.origin.y, //
-                                                    rounded_width,       //
-                                                    left_frame.size.height);
+            const double fraction = left_extent - rounded_extent;
+            left_extent = rounded_extent;
 
             NSView *right = [subviews objectAtIndex:1];
-            const NSRect right_frame = right.frame;
+            NSRect right_frame = right.frame;
+            CGFloat &right_origin = self.vertical ? right_frame.origin.x : right_frame.origin.y;
+            CGFloat &right_extent = self.vertical ? right_frame.size.width : right_frame.size.height;
+            right_origin -= fraction;
+            right_extent += fraction;
 
-            const NSRect new_right_rect = NSMakeRect(right_frame.origin.x - fraction, //
-                                                     right_frame.origin.y,
-                                                     right_frame.size.width + fraction,
-                                                     right_frame.size.height);
-            left.frame = new_left_rect;
-            right.frame = new_right_rect;
+            left.frame = left_frame;
+            right.frame = right_frame;
         }
     }
 }
@@ -126,14 +148,14 @@ static constexpr double g_DividerThickness = 1.;
     constrainMaxCoordinate:(CGFloat) [[maybe_unused]] proposedMaximumPosition
                ofSubviewAt:(NSInteger) [[maybe_unused]] dividerIndex
 {
-    return splitView.frame.size.width - g_MinPanelWidth;
+    return (self.vertical ? splitView.frame.size.width : splitView.frame.size.height) - g_MinPanelExtent;
 }
 
 - (CGFloat)splitView:(NSSplitView *) [[maybe_unused]] splitView
     constrainMinCoordinate:(CGFloat) [[maybe_unused]] proposedMinimumPosition
                ofSubviewAt:(NSInteger) [[maybe_unused]] dividerIndex
 {
-    return g_MinPanelWidth;
+    return g_MinPanelExtent;
 }
 
 - (void)drawDividerInRect:(NSRect)rect
@@ -351,18 +373,22 @@ static constexpr double g_DividerThickness = 1.;
     NSRect left = v1.frame;
     NSRect right = v2.frame;
 
+    CGFloat &left_extent = self.vertical ? left.size.width : left.size.height;
+    CGFloat &right_origin = self.vertical ? right.origin.x : right.origin.y;
+    CGFloat &right_extent = self.vertical ? right.size.width : right.size.height;
+
     auto gran = g_ResizingGran;
 
-    left.size.width -= gran;
-    right.origin.x -= gran;
-    right.size.width += gran;
-    if( left.size.width < 0 ) {
-        right.origin.x -= left.size.width;
-        right.size.width += left.size.width;
-        left.size.width = 0;
+    left_extent -= gran;
+    right_origin -= gran;
+    right_extent += gran;
+    if( left_extent < 0 ) {
+        right_origin -= left_extent;
+        right_extent += left_extent;
+        left_extent = 0;
     }
 
-    if( left.size.width < g_MinPanelWidth ) {
+    if( left_extent < g_MinPanelExtent ) {
         [self collapseLeftView];
         if( auto h = nc::objc_cast<FilePanelsTabbedHolder>(v2) )
             [self.window makeFirstResponder:h.current];
@@ -393,18 +419,22 @@ static constexpr double g_DividerThickness = 1.;
     NSRect left = v1.frame;
     NSRect right = v2.frame;
 
+    CGFloat &left_extent = self.vertical ? left.size.width : left.size.height;
+    CGFloat &right_origin = self.vertical ? right.origin.x : right.origin.y;
+    CGFloat &right_extent = self.vertical ? right.size.width : right.size.height;
+
     auto gran = g_ResizingGran;
 
-    left.size.width += gran;
-    right.origin.x += gran;
-    right.size.width -= gran;
-    if( right.size.width < 0 ) {
-        left.size.width += right.size.width;
-        right.origin.x -= right.size.width;
-        right.size.width = 0;
+    left_extent += gran;
+    right_origin += gran;
+    right_extent -= gran;
+    if( right_extent < 0 ) {
+        left_extent += right_extent;
+        right_origin -= right_extent;
+        right_extent = 0;
     }
 
-    if( right.size.width < g_MinPanelWidth ) {
+    if( right_extent < g_MinPanelExtent ) {
         [self collapseRightView];
         if( auto h = nc::objc_cast<FilePanelsTabbedHolder>(v1) )
             [self.window makeFirstResponder:h.current];
@@ -426,7 +456,8 @@ static constexpr double g_DividerThickness = 1.;
     NSView *right = [self.subviews objectAtIndex:1];
     NSView *left = [self.subviews objectAtIndex:0];
     left.hidden = true;
-    right.frameSize = NSMakeSize(self.frame.size.width, right.frame.size.height);
+    right.frameSize = self.vertical ? NSMakeSize(self.frame.size.width, right.frame.size.height)
+                                    : NSMakeSize(right.frame.size.width, self.frame.size.height);
     [self display];
 }
 
@@ -442,10 +473,13 @@ static constexpr double g_DividerThickness = 1.;
 
     NSRect left_frame = left.frame;
     NSRect right_frame = right.frame;
-    const double full_width = self.frame.size.width;
-    left_frame.size.width = std::round(full_width - g_DividerThickness) / m_PreCollapseProp;
-    right_frame.origin.x = left_frame.size.width + g_DividerThickness;
-    right_frame.size.width = full_width - right_frame.origin.x;
+    const double full_extent = self.vertical ? self.frame.size.width : self.frame.size.height;
+    CGFloat &left_extent = self.vertical ? left_frame.size.width : left_frame.size.height;
+    CGFloat &right_origin = self.vertical ? right_frame.origin.x : right_frame.origin.y;
+    CGFloat &right_extent = self.vertical ? right_frame.size.width : right_frame.size.height;
+    left_extent = std::round(full_extent - g_DividerThickness) / m_PreCollapseProp;
+    right_origin = left_extent + g_DividerThickness;
+    right_extent = full_extent - right_origin;
 
     left.frameSize = left_frame.size;
     right.frame = right_frame;
@@ -460,7 +494,8 @@ static constexpr double g_DividerThickness = 1.;
     NSView *right = [self.subviews objectAtIndex:1];
     NSView *left = [self.subviews objectAtIndex:0];
     right.hidden = true;
-    left.frameSize = NSMakeSize(self.frame.size.width, left.frame.size.height);
+    left.frameSize = self.vertical ? NSMakeSize(self.frame.size.width, left.frame.size.height)
+                                   : NSMakeSize(left.frame.size.width, self.frame.size.height);
     [self display];
 }
 
@@ -475,10 +510,13 @@ static constexpr double g_DividerThickness = 1.;
 
     NSRect left_frame = left.frame;
     NSRect right_frame = right.frame;
-    const double full_width = self.frame.size.width;
-    left_frame.size.width = std::round(full_width - g_DividerThickness) / m_PreCollapseProp;
-    right_frame.origin.x = left_frame.size.width + g_DividerThickness;
-    right_frame.size.width = full_width - right_frame.origin.x;
+    const double full_extent = self.vertical ? self.frame.size.width : self.frame.size.height;
+    CGFloat &left_extent = self.vertical ? left_frame.size.width : left_frame.size.height;
+    CGFloat &right_origin = self.vertical ? right_frame.origin.x : right_frame.origin.y;
+    CGFloat &right_extent = self.vertical ? right_frame.size.width : right_frame.size.height;
+    left_extent = std::round(full_extent - g_DividerThickness) / m_PreCollapseProp;
+    right_origin = left_extent + g_DividerThickness;
+    right_extent = full_extent - right_origin;
 
     left.frameSize = left_frame.size;
     right.frame = right_frame;
@@ -507,10 +545,10 @@ static constexpr double g_DividerThickness = 1.;
 {
     if( !self.isLeftCollapsed && !self.isRightCollapsed ) {
         NSView *left = [self.subviews objectAtIndex:0];
-        const auto left_width = left.frame.size.width;
-        const auto full_width = self.frame.size.width;
-        if( left_width > 0. ) {
-            m_PreCollapseProp = (full_width - g_DividerThickness) / left_width;
+        const auto left_extent = self.vertical ? left.frame.size.width : left.frame.size.height;
+        const auto full_extent = self.vertical ? self.frame.size.width : self.frame.size.height;
+        if( left_extent > 0. ) {
+            m_PreCollapseProp = (full_extent - g_DividerThickness) / left_extent;
         }
     }
 }

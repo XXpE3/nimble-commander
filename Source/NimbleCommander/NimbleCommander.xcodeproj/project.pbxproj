@@ -127,6 +127,7 @@
 		CF0A48522BDDA2B900833160 /* TabsManagement.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF27408D1E594C46000D4365 /* TabsManagement.mm */; };
 		CF0A48532BDDA2BE00833160 /* ToggleLayout.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF0260D11E9F10060025B50F /* ToggleLayout.mm */; };
 		CF0A48552BDDA2C400833160 /* ToggleSingleOrDualMode.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF197C421FB81ACA009F6C59 /* ToggleSingleOrDualMode.mm */; };
+		7A1B2C3D4E5F60718293A0B1 /* TogglePanelsOrientation.mm in Sources */ = {isa = PBXBuildFile; fileRef = 7A1B2C3D4E5F60718293A0B3 /* TogglePanelsOrientation.mm */; };
 		CF0A48562BDDA2C800833160 /* ToggleSort.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF0139AE1E99DAC100E44F2D /* ToggleSort.mm */; };
 		CF0A48572BDDA2CD00833160 /* ViewFile.mm in Sources */ = {isa = PBXBuildFile; fileRef = CF5E9A371FCBC521005608F5 /* ViewFile.mm */; };
 		CF0A48582BDDA39600833160 /* Layout.cpp in Sources */ = {isa = PBXBuildFile; fileRef = CF31F66F1DFE644B005A1A40 /* Layout.cpp */; };
@@ -890,6 +891,8 @@
 		CF15D0821E8E1E7A00FEAA04 /* OpenWithExternalEditor.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = OpenWithExternalEditor.mm; path = NimbleCommander/States/FilePanels/Actions/OpenWithExternalEditor.mm; sourceTree = SOURCE_ROOT; };
 		CF197C411FB81ACA009F6C59 /* ToggleSingleOrDualMode.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ToggleSingleOrDualMode.h; path = NimbleCommander/States/FilePanels/Actions/ToggleSingleOrDualMode.h; sourceTree = SOURCE_ROOT; };
 		CF197C421FB81ACA009F6C59 /* ToggleSingleOrDualMode.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ToggleSingleOrDualMode.mm; path = NimbleCommander/States/FilePanels/Actions/ToggleSingleOrDualMode.mm; sourceTree = SOURCE_ROOT; };
+		7A1B2C3D4E5F60718293A0B2 /* TogglePanelsOrientation.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = TogglePanelsOrientation.h; path = NimbleCommander/States/FilePanels/Actions/TogglePanelsOrientation.h; sourceTree = SOURCE_ROOT; };
+		7A1B2C3D4E5F60718293A0B3 /* TogglePanelsOrientation.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = TogglePanelsOrientation.mm; path = NimbleCommander/States/FilePanels/Actions/TogglePanelsOrientation.mm; sourceTree = SOURCE_ROOT; };
 		CF197C441FB834B7009F6C59 /* ShowTabs.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = ShowTabs.h; path = NimbleCommander/States/FilePanels/Actions/ShowTabs.h; sourceTree = SOURCE_ROOT; };
 		CF197C451FB834B7009F6C59 /* ShowTabs.mm */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.objcpp; name = ShowTabs.mm; path = NimbleCommander/States/FilePanels/Actions/ShowTabs.mm; sourceTree = SOURCE_ROOT; };
 		CF197C471FB92E80009F6C59 /* CopyFile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = CopyFile.h; path = NimbleCommander/States/FilePanels/Actions/CopyFile.h; sourceTree = SOURCE_ROOT; };
@@ -1817,6 +1820,8 @@
 				CF27408D1E594C46000D4365 /* TabsManagement.mm */,
 				CF0260D01E9F10060025B50F /* ToggleLayout.h */,
 				CF0260D11E9F10060025B50F /* ToggleLayout.mm */,
+				7A1B2C3D4E5F60718293A0B2 /* TogglePanelsOrientation.h */,
+				7A1B2C3D4E5F60718293A0B3 /* TogglePanelsOrientation.mm */,
 				CF197C411FB81ACA009F6C59 /* ToggleSingleOrDualMode.h */,
 				CF197C421FB81ACA009F6C59 /* ToggleSingleOrDualMode.mm */,
 				CF0139AD1E99DAC100E44F2D /* ToggleSort.h */,
@@ -3011,6 +3016,7 @@
 				CF0A48582BDDA39600833160 /* Layout.cpp in Sources */,
 				CF0A48082BDD9F7400833160 /* PreferencesWindowPanelsTabOperationsConcurrencySheet.mm in Sources */,
 				CF0A48552BDDA2C400833160 /* ToggleSingleOrDualMode.mm in Sources */,
+				7A1B2C3D4E5F60718293A0B1 /* TogglePanelsOrientation.mm in Sources */,
 				CF0A48882BDDA58500833160 /* FavoritesImpl.cpp in Sources */,
 				CF0A48612BDDA3CE00833160 /* Layout.cpp in Sources */,
 				CF0A480C2BDD9F8800833160 /* PreferencesWindowThemesTabAutomaticSwitchingSheet.mm in Sources */,
