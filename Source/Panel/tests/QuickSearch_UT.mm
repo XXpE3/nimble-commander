@@ -416,6 +416,43 @@ TEST_CASE("soft typing")
     CHECK(ctx.delegate.cursorPosition == 9);
 }
 
+TEST_CASE("pinyin hard filtering")
+{
+    QuickSearchTestsContext ctx;
+    const auto listing = QuickSearch_ProduceDummyListing(
+        {"这里.pdf", "记录每周.pdf", "值得分享.pdf", "的.pdf", "科技内容.pdf"});
+    ctx.data.Load(listing, data::Model::PanelType::Directory);
+    ctx.qsconfig.Set(g_ConfigIsSoftFiltering, false);
+    ctx.qsconfig.Set(g_ConfigWhereToFind, data::TextualFilter::Where::Anywhere);
+    const auto qs = [[NCPanelQuickSearch alloc] initWithData:ctx.data delegate:ctx.delegate config:ctx.qsconfig];
+
+    // the query is longer than the filename itself - only the pinyin fallback can match it
+    [qs setSearchCriteria:@"kejineirong"];
+    CHECK(ctx.data.SortedEntriesCount() == 1);
+    CHECK(ctx.data.EntryAtSortPosition(0).Filename() == "科技内容.pdf");
+}
+
+TEST_CASE("pinyin soft filtering")
+{
+    QuickSearchTestsContext ctx;
+    const auto listing = QuickSearch_ProduceDummyListing(
+        {"这里.pdf", "记录每周.pdf", "值得分享.pdf", "的.pdf", "科技内容.pdf"});
+    ctx.data.Load(listing, data::Model::PanelType::Directory);
+    ctx.qsconfig.Set(g_ConfigIsSoftFiltering, true);
+    ctx.qsconfig.Set(g_ConfigWhereToFind, data::TextualFilter::Where::Anywhere);
+    ctx.qsconfig.Set(g_ConfigKeyOption, static_cast<int>(QuickSearch::KeyModif::WithoutModif));
+    const auto qs = [[NCPanelQuickSearch alloc] initWithData:ctx.data delegate:ctx.delegate config:ctx.qsconfig];
+
+    for( NSString *key in @[@"k", @"e", @"j", @"i"] )
+        [qs handleKeyDown:KeyDown(key, 0) forPanelView:nil];
+
+    CHECK(ctx.data.EntriesBySoftFiltering().size() == 1);
+    const int cursor = ctx.data.SortedIndexForName("科技内容.pdf");
+    CHECK(ctx.delegate.cursorPosition == cursor);
+    CHECK(ctx.data.VolatileDataAtSortPosition(cursor).highlight.unpack() ==
+          QuickSearchHighlight::Ranges{{{0, 2}}, 1});
+}
+
 NSEvent *KeyDown(NSString *_key, NSEventModifierFlags _flags)
 {
     return [NSEvent keyEventWithType:NSEventTypeKeyDown
